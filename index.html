@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultimativer Intervall Trainer</title>
+    <style>
+        :root {
+            --primary: #007AFF;
+            --success: #34C759;
+            --danger: #FF3B30;
+            --background: #ffffff;
+            --surface: #f2f2f7;
+            --text: #1c1c1e;
+            --border: #d1d1d6;
+            --ease: cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        [data-theme="dark"] {
+            --background: #000000;
+            --surface: #1c1c1e;
+            --text: #ffffff;
+            --border: #2c2c2e;
+        }
+
+        body {
+            font-family: -apple-system, system-ui;
+            background: var(--background);
+            color: var(--text);
+            margin: 0;
+            min-height: 100vh;
+            transition: background 0.3s var(--ease);
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .theme-switch {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            background: var(--surface);
+            border-radius: 20px;
+            transition: transform 0.3s var(--ease);
+        }
+
+        .theme-switch:active {
+            transform: scale(0.9);
+        }
+
+        .welcome-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--surface);
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 0 40px rgba(0,0,0,0.2);
+            z-index: 1000;
+            max-width: 500px;
+        }
+
+        .interval-groups {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin: 2rem 0;
+            padding: 1rem;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+        }
+
+        .interval-group label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            border-radius: 8px;
+            transition: background 0.2s var(--ease);
+        }
+
+        .training-card {
+            background: var(--surface);
+            border-radius: 24px;
+            padding: 2rem;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.1);
+        }
+
+        .play-controls {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin: 2rem 0;
+        }
+
+        .control-btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 20px;
+            background: var(--primary);
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s var(--ease);
+        }
+
+        .control-btn:active {
+            transform: scale(0.95);
+            opacity: 0.8;
+        }
+
+        .interval-selector {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .interval-option {
+            padding: 1.5rem;
+            background: var(--surface);
+            border-radius: 18px;
+            text-align: center;
+            cursor: pointer;
+            border: 1px solid var(--border);
+            transition: all 0.3s var(--ease);
+        }
+
+        .interval-option:active {
+            transform: scale(0.98);
+        }
+
+        .interval-option.correct {
+            background: var(--success);
+            border-color: transparent;
+            animation: pulse 0.5s var(--ease);
+        }
+
+        .interval-option.wrong {
+            background: var(--danger);
+            border-color: transparent;
+            animation: shake 0.4s var(--ease);
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            75% { transform: translateX(8px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="theme-switch" onclick="toggleTheme()">🌓</div>
+
+    <div class="welcome-modal" id="welcomeModal">
+        <h2>Willkommen beim Intervall Trainer!</h2>
+        <p>So funktioniert's:</p>
+        <ol>
+            <li>Wähle Intervallgruppen aus</li>
+            <li>Klicke "Intervall abspielen"</li>
+            <li>Wähle das gehörte Intervall</li>
+            <li>Erhalte sofortiges Feedback</li>
+        </ol>
+        <label>
+            <input type="checkbox" id="dontShowAgain">
+            Nicht mehr anzeigen
+        </label>
+        <button class="control-btn" onclick="closeWelcome()">Los geht's!</button>
+    </div>
+
+    <div class="container">
+        <div class="training-card">
+            <div class="interval-groups">
+                <div class="interval-group">
+                    <label>
+                        <input type="checkbox" data-group="seconds">
+                        Sekunden (kl./gr.)
+                    </label>
+                </div>
+                <div class="interval-group">
+                    <label>
+                        <input type="checkbox" data-group="thirds">
+                        Terzen (kl./gr.)
+                    </label>
+                </div>
+                <div class="interval-group">
+                    <label>
+                        <input type="checkbox" data-group="fourths_fifths">
+                        Quarten & Quinten
+                    </label>
+                </div>
+                <div class="interval-group">
+                    <label>
+                        <input type="checkbox" data-group="sixths_sevenths">
+                        Sexten & Septimen
+                    </label>
+                </div>
+                <div class="interval-group">
+                    <label>
+                        <input type="checkbox" data-group="octave">
+                        Oktave
+                    </label>
+                </div>
+                <div class="interval-group">
+                    <label>
+                        <input type="checkbox" data-group="all">
+                        Alle Intervalle
+                    </label>
+                </div>
+            </div>
+
+            <div class="play-controls">
+                <button class="control-btn" id="playBtn">🎵 Intervall abspielen</button>
+                <button class="control-btn" id="newBtn">🔄 Neue Aufgabe</button>
+            </div>
+
+            <div class="interval-selector" id="intervalOptions"></div>
+        </div>
+    </div>
+
+<script>
+'use strict';
+
+const IntervalMaster = (() => {
+    const INTERVALS = {
+        'Prime': 0,
+        'Kleine Sekunde': 1,
+        'Große Sekunde': 2,
+        'Kleine Terz': 3,
+        'Große Terz': 4,
+        'Reine Quarte': 5,
+        'Tritonus': 6,
+        'Reine Quinte': 7,
+        'Kleine Sexte': 8,
+        'Große Sexte': 9,
+        'Kleine Septime': 10,
+        'Große Septime': 11,
+        'Oktave': 12
+    };
+
+    const NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+    const INTERVAL_GROUPS = {
+        'seconds': ['Kleine Sekunde', 'Große Sekunde'],
+        'thirds': ['Kleine Terz', 'Große Terz'],
+        'fourths_fifths': ['Reine Quarte', 'Reine Quinte'],
+        'sixths_sevenths': ['Kleine Sexte', 'Große Sexte', 'Kleine Septime', 'Große Septime'],
+        'octave': ['Oktave'],
+        'all': Object.keys(INTERVALS)
+    };
+
+    let audioContext;
+    let currentRoot = 'C4';
+    let currentInterval = 'Große Terz';
+    let activeOscillators = [];
+    let selectedGroups = new Set(['all']);
+    let isExerciseActive = false;
+
+    function initAudio() {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    }
+
+    function createOscillator(freq) {
+        const osc = audioContext.createOscillator();
+        const gain = audioContext.createGain();
+        
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, audioContext.currentTime);
+        
+        gain.gain.setValueAtTime(0.1, audioContext.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 1);
+        
+        osc.connect(gain);
+        gain.connect(audioContext.destination);
+        
+        osc.start();
+        osc.stop(audioContext.currentTime + 1);
+        activeOscillators.push(osc);
+    }
+
+    function playInterval() {
+        if (!isExerciseActive) return;
+        if (!audioContext) initAudio();
+        
+        activeOscillators.forEach(osc => osc.stop());
+        activeOscillators = [];
+
+        const rootFreq = noteToFreq(currentRoot);
+        const intervalNote = getIntervalNote(currentRoot, INTERVALS[currentInterval]);
+        const intervalFreq = noteToFreq(intervalNote);
+
+        createOscillator(rootFreq);
+        setTimeout(() => createOscillator(intervalFreq), 1200);
+    }
+
+    function noteToFreq(note) {
+        const midiNumber = NOTE_NAMES.indexOf(note.slice(0, -1)) + (parseInt(note.slice(-1)) + 1) * 12;
+        return 440 * Math.pow(2, (midiNumber - 69) / 12);
+    }
+
+    function getIntervalNote(rootNote, semitones) {
+        const rootIndex = NOTE_NAMES.indexOf(rootNote.slice(0, -1));
+        const octave = parseInt(rootNote.slice(-1));
+        
+        let newIndex = rootIndex + semitones;
+        let newOctave = octave;
+        
+        while (newIndex >= NOTE_NAMES.length) {
+            newIndex -= NOTE_NAMES.length;
+            newOctave++;
+        }
+        
+        return `${NOTE_NAMES[newIndex]}${newOctave}`;
+    }
+
+    function generateOptions() {
+        const container = document.getElementById('intervalOptions');
+        container.innerHTML = '';
+        
+        getAvailableIntervals().forEach(interval => {
+            const card = document.createElement('div');
+            card.className = 'interval-option';
+            card.textContent = interval;
+            card.onclick = () => handleAnswer(interval);
+            container.appendChild(card);
+        });
+    }
+
+    function handleAnswer(selected) {
+        if (!isExerciseActive) return;
+
+        const options = document.querySelectorAll('.interval-option');
+        options.forEach(opt => {
+            opt.classList.remove('correct', 'wrong');
+            if (opt.textContent === currentInterval) opt.classList.add('correct');
+            if (opt.textContent === selected && selected !== currentInterval) opt.classList.add('wrong');
+        });
+
+        if (selected === currentInterval) {
+            isExerciseActive = false;
+            setTimeout(() => generateNewExercise(), 1000);
+        }
+    }
+
+    function updateIntervalSelection() {
+        selectedGroups.clear();
+        document.querySelectorAll('.interval-group input:checked').forEach(checkbox => {
+            if (checkbox.dataset.group === 'all') {
+                selectedGroups.clear();
+                selectedGroups.add('all');
+            } else {
+                selectedGroups.delete('all');
+                selectedGroups.add(checkbox.dataset.group);
+            }
+        });
+
+        if (selectedGroups.size === 0) selectedGroups.add('all');
+    }
+
+    function getAvailableIntervals() {
+        let intervals = [];
+        selectedGroups.forEach(group => {
+            intervals.push(...INTERVAL_GROUPS[group]);
+        });
+        return [...new Set(intervals)];
+    }
+
+    function generateNewExercise() {
+        isExerciseActive = true;
+        updateIntervalSelection();
+        const availableIntervals = getAvailableIntervals();
+        currentInterval = availableIntervals[Math.floor(Math.random() * availableIntervals.length)];
+        currentRoot = NOTE_NAMES[Math.floor(Math.random() * NOTE_NAMES.length)] + '4';
+        generateOptions();
+    }
+
+    function initEventListeners() {
+        document.querySelectorAll('.interval-group input').forEach(input => {
+            input.addEventListener('change', () => {
+                updateIntervalSelection();
+                generateNewExercise();
+            });
+        });
+
+        document.getElementById('playBtn').addEventListener('click', playInterval);
+        document.getElementById('newBtn').addEventListener('click', generateNewExercise);
+    }
+
+    function init() {
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.body.setAttribute('data-theme', savedTheme);
+        document.querySelector('.interval-group input[data-group="all"]').checked = true;
+        
+        initEventListeners();
+        handleWelcome();
+        generateNewExercise();
+    }
+
+    function handleWelcome() {
+        if (!localStorage.getItem('hideWelcome')) {
+            document.getElementById('welcomeModal').style.display = 'block';
+        }
+    }
+
+    return { init, generateNewExercise };
+})();
+
+// Globale Funktionen
+function toggleTheme() {
+    const isDark = document.body.getAttribute('data-theme') === 'dark';
+    document.body.setAttribute('data-theme', isDark ? 'light' : 'dark');
+    localStorage.setItem('theme', isDark ? 'light' : 'dark');
+}
+
+function closeWelcome() {
+    document.getElementById('welcomeModal').style.display = 'none';
+    if (document.getElementById('dontShowAgain').checked) {
+        localStorage.setItem('hideWelcome', 'true');
+    }
+    IntervalMaster.generateNewExercise();
+}
+
+// Initialisierung
+window.addEventListener('DOMContentLoaded', () => {
+    IntervalMaster.init();
+});
+</script>
+</body>
+</html>
