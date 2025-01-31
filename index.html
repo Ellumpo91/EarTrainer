@@ -45,6 +45,88 @@
             -webkit-font-smoothing: antialiased;
         }
 
+        .training-card {
+            background: linear-gradient(
+                145deg,
+                rgba(var(--surface), 0.8),
+                rgba(var(--surface), 0.4)
+            ) !important;
+            backdrop-filter: blur(var(--blur)) saturate(180%);
+            -webkit-backdrop-filter: blur(var(--blur)) saturate(180%);
+            border: 1px solid rgba(255,255,255,0.1) !important;
+        }
+
+        /* Verbesserte Checkboxen */
+        .interval-group input[type="checkbox"] {
+            width: 1.2rem;
+            height: 1.2rem;
+            border: 2px solid var(--border);
+            border-radius: 4px;
+            appearance: none;
+            position: relative;
+            transition: all 0.2s var(--ease);
+        }
+
+        .interval-group input[type="checkbox"]:checked {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .interval-group input[type="checkbox"]:checked:after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 45%;
+            width: 4px;
+            height: 8px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: translate(-50%, -50%) rotate(45deg);
+        }
+
+        /* Feinabstimmung der Animationen */
+        .interval-group {
+            transition: 
+                transform 0.3s var(--ease),
+                box-shadow 0.3s var(--ease),
+                background 0.4s var(--ease);
+        }
+
+        .interval-group:hover {
+            background: rgba(var(--primary), 0.05);
+            transform: translateY(-4px) scale(1.02);
+        }
+
+        /* Taktiles Feedback */
+        .control-btn:active {
+            transform: scale(0.98) !important;
+            filter: brightness(0.95);
+        }
+
+        /* Dynamische Farbverläufe */
+        .theme-switch {
+            background: linear-gradient(
+                45deg,
+                var(--surface),
+                rgba(var(--surface), 0.7)
+            );
+        }
+
+        /* Responsive Anpassungen */
+        @media (max-width: 680px) {
+            body {
+                padding: 1rem !important;
+            }
+            
+            .training-card {
+                padding: 1.5rem !important;
+            }
+            
+            .interval-groups {
+                grid-template-columns: 1fr;
+            }
+        }
+
         .modal-overlay {
             position: fixed;
             top: 0;
